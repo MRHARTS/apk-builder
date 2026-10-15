@@ -1,0 +1,119 @@
+l<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fee Register</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&display=swap">
+<style>
+:root{--bg:#EEF3F1;--card:#fff;--ink:#14231F;--mute:#5B6B66;--line:#D5DFDB;--g:#157A5B;--gs:#DDF1E9;--r:#B0392E;--rs:#F8E1DE;--a:#F0A81C;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1815;--card:#17231F;--ink:#E8F0ED;--mute:#93A59F;--line:#2A3B36;--g:#4CC9A0;--gs:#12372C;--r:#F08A7E;--rs:#3B1E1B;--a:#F5B93A}}
+:root[data-theme="dark"]{--bg:#0E1815;--card:#17231F;--ink:#E8F0ED;--mute:#93A59F;--line:#2A3B36;--g:#4CC9A0;--gs:#12372C;--r:#F08A7E;--rs:#3B1E1B;--a:#F5B93A}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 'Bricolage Grotesque',system-ui,-apple-system,sans-serif;padding-bottom:84px}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:6px 0 14px;font-weight:800}
+h2{font-size:21px;margin:0 0 4px;font-weight:800}
+.mute{color:var(--mute)}.small,small{font-size:13px}.num{font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.hero{border-left:6px solid var(--a)}
+.big{font-size:46px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:2px 0 12px}
+.lg{font-size:24px}
+.bar{height:10px;border-radius:5px;background:var(--rs);overflow:hidden;margin-bottom:6px}.bar i{display:block;height:100%;background:var(--g)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.grid3 .card{padding:10px;margin:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0}
+.row[role=button]{cursor:pointer}
+.tag{padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;white-space:nowrap}.ok{background:var(--gs);color:var(--g)}.due{background:var(--rs);color:var(--r)}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:600;background:var(--g);color:var(--bg);cursor:pointer;min-height:44px}
+.btn.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}.btn.bad{background:var(--r)}
+.btn.sm{padding:6px 12px;min-height:36px;font-size:14px}
+input{width:100%;box-sizing:border-box;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);margin:4px 0 10px;min-height:44px}
+textarea{width:100%;min-height:120px;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:10px;margin:8px 0;font:12px monospace}
+label{font-size:13px;color:var(--mute);font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;padding:15px 0;font-weight:600;color:var(--mute);cursor:pointer}
+nav button.on{color:var(--g);box-shadow:inset 0 3px 0 var(--a)}
+.sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;animation:up .2s}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:20;display:none;max-width:90%}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+</style></head><body>
+<div class="wrap"><h1>Fee Register</h1><div id="app"></div></div>
+<nav><button data-a="go" data-i="dash" data-v="dash">Dashboard</button><button data-a="go" data-i="tut" data-v="tut">Tuitions</button><button data-a="go" data-i="bkp" data-v="bkp">Backup</button></nav>
+<script>
+const K='tuition-fee-register-v1';
+function load(){try{const r=localStorage.getItem(K);if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.t))return o}}catch(e){}return{t:[],bk:0}}
+let S=load(),view='dash',tt;
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('Could not auto-save. Please take a backup now.')}}
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const nowM=()=>today().slice(0,7);
+const rs=n=>'Rs '+Math.round(n).toLocaleString('en-US');
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const mname=m=>{const[y,mo]=(m||nowM()).split('-');return MN[mo-1]+' '+y};
+const fd=d=>{const[y,m,x]=d.split('-');return+x+' '+MN[m-1]+' '+y};
+const gT=i=>S.t.find(t=>t.id===i),gS=(t,j)=>t.s.find(s=>s.id===j);
+function stat(s){const[y,m]=s.start.split('-').map(Number),[ny,nm]=nowM().split('-').map(Number);const months=Math.max(0,(ny-y)*12+nm-m+1),paid=s.pays.reduce((a,p)=>a+p.amt,0);return{months,exp:months*s.fee,paid,due:months*s.fee-paid}}
+function totals(){let paid=0,exp=0,due=0,mon=0;const per=S.t.map(t=>{let p=0,d=0;t.s.forEach(s=>{const x=stat(s);p+=x.paid;exp+=x.exp;d+=Math.max(0,x.due);s.pays.forEach(q=>{if(q.date.slice(0,7)===nowM())mon+=q.amt})});paid+=p;due+=d;return{t,p,d}});return{paid,exp,due,mon,per}}
+function toast(m){let e=$('#toast');if(!e){e=document.createElement('div');e.id='toast';e.className='toast';e.setAttribute('role','status');document.body.appendChild(e)}e.textContent=m;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2600)}
+function sheet(h){close();const d=document.createElement('div');d.className='sheetbg';d.id='sh';d.innerHTML='<div class="sheet" role="dialog" aria-modal="true">'+h+'</div>';d.addEventListener('click',e=>{if(e.target===d)close()});document.body.appendChild(d)}
+function close(){const d=$('#sh');if(d)d.remove()}
+function arm(el,fn){if(el.dataset.armed){fn();return}el.dataset.l=el.dataset.l||el.textContent;el.dataset.armed=1;el.textContent='Tap again to confirm';setTimeout(()=>{if(el.isConnected){delete el.dataset.armed;el.textContent=el.dataset.l}},3000)}
+function render(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));$('#app').innerHTML=view==='dash'?dash():view==='tut'?tuts():bkp()}
+
+function dash(){const T=totals(),pct=T.exp>0?Math.min(100,Math.round(T.paid/T.exp*100)):0,pend=[];
+S.t.forEach(t=>t.s.forEach(s=>{const x=stat(s);if(x.due>0)pend.push({t,s,d:x.due})}));pend.sort((a,b)=>b.d-a.d);
+const stale=S.t.length&&(Date.now()-S.bk>7*864e5);
+return(stale?`<div class="card" style="border-color:var(--a)"><b>Backup needed</b><p class="mute" style="margin:4px 0 10px">${S.bk?'Your last backup is more than a week old.':'You have not taken a backup yet.'}</p><button class="btn sm" data-a="go" data-i="bkp">Take backup</button></div>`:'')
++`<div class="card hero"><div class="mute">Total earned so far</div><div class="big num">${rs(T.paid)}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="mute small">${pct}% of the fee billed has been collected</div></div>
+<div class="grid2"><div class="card"><div class="mute small">Received this month</div><b class="num lg">${rs(T.mon)}</b></div><div class="card"><div class="mute small">Total dues</div><b class="num lg" style="color:var(--r)">${rs(T.due)}</b></div></div>`
++(S.t.length?`<div class="card"><b>Earnings by tuition</b>${T.per.map(x=>`<div class="row"><span>${esc(x.t.name)}<br><small class="mute">${x.t.s.length} students</small></span><span class="num">${rs(x.p)}</span></div>`).join('')}</div>`:`<div class="card"><b>Start here</b><p class="mute">Add your first tuition, then add its students.</p><button class="btn" data-a="go" data-i="tut">Go to Tuitions</button></div>`)
++(pend.length?`<div class="card"><b>Pending fees</b>${pend.map(p=>`<div class="row" role="button" tabindex="0" data-a="stu" data-i="${p.t.id}" data-j="${p.s.id}"><span>${esc(p.s.name)}<br><small class="mute">${esc(p.t.name)}</small></span><span class="tag due num">${rs(p.d)}</span></div>`).join('')}</div>`:'')}
+
+function tuts(){return`<button class="btn" data-a="addT">+ New tuition</button><div style="height:14px"></div>`+(S.t.map(t=>{let p=0,d=0;t.s.forEach(s=>{const x=stat(s);p+=x.paid;d+=Math.max(0,x.due)});
+return`<div class="card"><div class="row" style="padding-top:0"><b>${esc(t.name)}</b><button class="btn alt sm" data-a="editT" data-i="${t.id}">Edit</button></div><small class="mute num">Collected ${rs(p)}, dues ${rs(d)}</small>`
++t.s.map(s=>{const x=stat(s);return`<div class="row" role="button" tabindex="0" data-a="stu" data-i="${t.id}" data-j="${s.id}"><span>${esc(s.name)}<br><small class="mute">${rs(s.fee)} / month</small></span>${x.due>0?`<span class="tag due num">Due ${rs(x.due)}</span>`:`<span class="tag ok">Clear</span>`}</div>`}).join('')
++`<button class="btn alt sm" style="margin-top:8px" data-a="addS" data-i="${t.id}">+ Add student</button></div>`}).join('')||`<p class="mute">No tuitions yet. Tap "New tuition" to begin.</p>`)}
+
+function bkp(){return`<div class="card"><b>Auto-save</b><p class="mute" style="margin:4px 0 0">Every change is saved in this phone's browser and stays after you close the page. Clearing browser data or changing browser removes it, so keep a backup.</p></div>
+<div class="card"><b>Create backup</b><p class="mute" style="margin:4px 0 10px">Last backup: ${S.bk?new Date(S.bk).toLocaleDateString():'never'}</p><button class="btn" data-a="bk">Create backup</button><div id="bkout"></div></div>
+<div class="card"><b>Restore from backup</b><p class="mute" style="margin:4px 0 0">This replaces the data currently on this page.</p><textarea id="rs" placeholder="Paste your backup text here"></textarea><button class="btn alt" data-a="rst">Restore</button></div>`}
+
+function sForm(s){return`<label>Student name</label><input id="f1" value="${esc(s?.name)}"><label>Monthly fee (Rs)</label><input id="f2" type="number" inputmode="numeric" value="${s?.fee??''}"><label>Fee starts from</label><input id="f3" type="month" value="${s?.start||nowM()}"><label>Parent phone for WhatsApp (optional)</label><input id="f4" inputmode="tel" placeholder="03001234567" value="${esc(s?.ph)}">`}
+function readS(){const name=$('#f1').value.trim(),fee=+$('#f2').value,start=$('#f3').value;let ph=$('#f4').value.replace(/\D/g,'');if(ph.startsWith('0'))ph='92'+ph.slice(1);
+if(!name){toast('Enter the student name');return}if(!(fee>0)){toast('Enter a monthly fee');return}if(!start){toast('Choose the starting month');return}return{name,fee,start,ph}}
+
+const act={
+go(i){view=i;close();render();scrollTo(0,0)},
+close(){close();render()},
+addT(){sheet(`<h2>New tuition</h2><label>Name (e.g. Ali's house, Batch A)</label><input id="f1"><button class="btn" data-a="saveT">Save tuition</button>`)},
+editT(i){const t=gT(i);sheet(`<h2>Edit tuition</h2><label>Name</label><input id="f1" value="${esc(t.name)}"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="saveT" data-i="${i}">Save</button><button class="btn bad" data-a="delT" data-i="${i}">Delete tuition</button></div><p class="mute small">Deleting a tuition also deletes all its students and payment records.</p>`)},
+saveT(i){const n=$('#f1').value.trim();if(!n)return toast('Enter a name');if(i)gT(i).name=n;else S.t.push({id:uid(),name:n,s:[]});save();close();render()},
+delT(i,j,el){arm(el,()=>{S.t=S.t.filter(t=>t.id!==i);save();close();render()})},
+addS(i){sheet(`<h2>Add student</h2>${sForm()}<button class="btn" data-a="saveS" data-i="${i}">Save student</button>`)},
+saveS(i,j){const v=readS();if(!v)return;const t=gT(i);if(j){Object.assign(gS(t,j),v)}else t.s.push({id:uid(),pays:[],...v});save();close();render();if(j)act.stu(i,j)},
+editS(i,j){const s=gS(gT(i),j);sheet(`<h2>Edit student</h2>${sForm(s)}<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="saveS" data-i="${i}" data-j="${j}">Save</button><button class="btn bad" data-a="delS" data-i="${i}" data-j="${j}">Delete student</button></div><p class="mute small">Deleting a student also deletes their payment records.</p>`)},
+delS(i,j,el){arm(el,()=>{const t=gT(i);t.s=t.s.filter(s=>s.id!==j);save();close();render()})},
+stu(i,j){const t=gT(i),s=gS(t,j),x=stat(s),pays=[...s.pays].sort((a,b)=>b.date.localeCompare(a.date));
+sheet(`<h2>${esc(s.name)}</h2><small class="mute">${esc(t.name)}, ${rs(s.fee)} / month from ${mname(s.start)}</small>
+<div class="grid3"><div class="card"><div class="mute small">Billed</div><b class="num">${rs(x.exp)}</b></div><div class="card"><div class="mute small">Paid</div><b class="num">${rs(x.paid)}</b></div><div class="card"><div class="mute small">${x.due<0?'Advance':'Due'}</div><b class="num" style="color:${x.due>0?'var(--r)':'var(--g)'}">${rs(Math.abs(x.due))}</b></div></div>
+<b>Record a payment</b><label>Amount (Rs)</label><input id="p1" type="number" inputmode="numeric" value="${s.fee}"><label>Date received</label><input id="p2" type="date" value="${today()}"><label>Fee for month</label><input id="p3" type="month" value="${nowM()}"><label>Note (optional)</label><input id="p4"><button class="btn" data-a="savePay" data-i="${i}" data-j="${j}">Save payment</button>
+<div style="height:18px"></div><b>Payment history</b>`+(pays.length?pays.map(p=>`<div class="row"><span>${fd(p.date)}<br><small class="mute">For ${mname(p.m)}${p.note?', '+esc(p.note):''}</small></span><span class="num">${rs(p.amt)} <button class="btn alt sm" data-a="delPay" data-i="${i}" data-j="${j}" data-k="${p.id}">Delete</button></span></div>`).join(''):'<p class="mute">No payments recorded yet.</p>')
++`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">${x.due>0?`<button class="btn" data-a="wa" data-i="${i}" data-j="${j}">WhatsApp reminder</button>`:''}<button class="btn alt" data-a="editS" data-i="${i}" data-j="${j}">Edit student</button><button class="btn alt" data-a="close">Close</button></div>`)},
+savePay(i,j){const amt=+$('#p1').value,date=$('#p2').value,m=$('#p3').value||nowM();if(!(amt>0))return toast('Enter the amount received');if(!date)return toast('Choose the date');
+gS(gT(i),j).pays.push({id:uid(),amt,date,m,note:$('#p4').value.trim()});save();toast('Payment saved');render();act.stu(i,j)},
+delPay(i,j,el,k){arm(el,()=>{const s=gS(gT(i),j);s.pays=s.pays.filter(p=>p.id!==k);save();render();act.stu(i,j)})},
+wa(i,j){const t=gT(i),s=gS(t,j),x=stat(s);const msg=`Assalam o Alaikum, this is a gentle reminder that ${s.name}'s tuition fee of ${rs(x.due)} is pending. Please pay when convenient. JazakAllah.`;window.open('https://wa.me/'+(s.ph||'')+'?text='+encodeURIComponent(msg),'_blank')},
+bk(){S.bk=Date.now();save();const txt=JSON.stringify({app:'fee-register',v:1,data:S});$('#bkout').innerHTML=`<textarea id="bt" readonly>${esc(txt)}</textarea><button class="btn alt sm" data-a="cp">Copy</button> <button class="btn alt sm" data-a="sh2">Share</button><p class="mute small">Paste this text into WhatsApp (message yourself), Notes or email, and keep it safe.</p>`},
+cp(){const t=$('#bt');t.select();t.setSelectionRange(0,1e7);const ok=()=>toast('Copied');(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(ok).catch(()=>{try{document.execCommand('copy')?ok():toast('Press and hold the text to copy')}catch(e){toast('Press and hold the text to copy')}})},
+sh2(){const v=$('#bt').value;if(navigator.share)navigator.share({title:'Fee Register backup',text:v}).catch(()=>{});else act.cp()},
+rst(i,j,el){arm(el,()=>{try{const o=JSON.parse($('#rs').value.trim());if(!o||!o.data||!Array.isArray(o.data.t))throw 0;S=o.data;save();toast('Backup restored');view='dash';render()}catch(e){toast('That text is not a valid backup')}})}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&act[el.dataset.a])act[el.dataset.a](el.dataset.i,el.dataset.j,el,el.dataset.k)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.getAttribute('role')==='button')e.target.click()});
+render();
+</script></body></html>
